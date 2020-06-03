@@ -38,28 +38,24 @@ VOID Store( VOID )
 VOID Go( INT Pos )
 {
   INT j;
+  INT save_parity = IsParity;
+  INT x;
   if (Pos == MAX)
    Store();
   else
   {
-    for (j = Pos; j < MAX; j++)
+    Go(Pos + 1);
+    for (j = Pos + 1; j < MAX; j++)
     {
       Swap(&P[Pos], &P[j]);
-      if (Pos != j)
-        if (IsParity)
-          IsParity = 0;
-        else
-          IsParity = 1;
-
+      IsParity = !IsParity;
       Go(Pos + 1);
-
-      Swap(&P[Pos], &P[j]);
-      if (Pos != j)
-        if (IsParity)
-          IsParity = 0;
-        else
-          IsParity = 1;
     }
+    x = P[Pos];
+    for (j = Pos + 1; j < MAX; j++)
+      P[j-1] = P[j];
+    P[MAX-1] = x;
+    IsParity = save_parity;
   }
 } /* End of 'Go' function */
 
