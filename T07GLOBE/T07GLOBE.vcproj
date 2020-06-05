@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MTH.H"
+				>
+			</File>
+			<File
 				RelativePath=".\TIMER.H"
 				>
 			</File>

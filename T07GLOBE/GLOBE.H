@@ -9,10 +9,5 @@
 #define GLOBE_W 36
 #define GLOBE_H 18
 
-typedef struct
-{
-  DBL X, Y, Z;
-} VEC;
-
 VOID GlobeSet( DBL Xc, DBL Yc, DBL R );
 VOID GlobeDraw( HDC hDC );

@@ -10,6 +10,7 @@
 
 #include "GLOBE.H"
 #include "TIMER.H"
+#include "MTH.H"
 
 /* Geometry data array */
 static VEC Geom[GLOBE_H][GLOBE_W];
@@ -87,15 +88,17 @@ VOID GlobeSet( DBL Xc, DBL Yc, DBL R )
 VOID GlobeDraw( HDC hDC )
 {
   INT i, j, k, s = 3;
-  DBL t = GLB_Time;
   static POINT pnts[GLOBE_H][GLOBE_W];
   static INT z[GLOBE_H][GLOBE_W];
+  MATR m;
+  m = MatrMulMatr2(MatrRotateX(30), MatrRotateY(GLB_Time * 30));
+  //m = MatrMulMatr3(MatrRotateX(30), MatrRotateY(GLB_Time * 30), MatrView(VecSet(GLB_Time * 12.26, GLB_Time * 2, 5), VecSet(0, 0, 0), VecSet(0, 1, 0)));
+  //m = MatrView(VecSet(GLB_Time * 12.26, GLB_Time * 2, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
 
   for (i = 0; i < GLOBE_H; i++)
     for (j = 0; j < GLOBE_W; j++)
     {
-      VEC V1 = VecRotateZ(Geom[i][j], 8 * t),
-          V  = VecRotateX(V1, 30 * t);   
+      VEC V = PointTransform(Geom[i][j], m);   
       pnts[i][j].x = CenterX + (INT)V.X;
       pnts[i][j].y = CenterY - (INT)V.Y;
     }
@@ -104,7 +107,7 @@ VOID GlobeDraw( HDC hDC )
   SetDCBrushColor(hDC, RGB(55, 146, 243)); 
   SelectObject(hDC, GetStockObject(BLACK_PEN));
 
-  for (k = 0; k < 2; k++)
+  for (k = 1; k < 2; k++) // no back: for k = 1...
   {
     for (i = 0; i < GLOBE_H - 1; i++)
       for (j = 0; j < GLOBE_W - 1; j++)

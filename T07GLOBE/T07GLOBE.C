@@ -9,6 +9,7 @@
 
 #include "GLOBE.H"
 #include "TIMER.H"
+#include "MTH.H"
 
 /* Window class name */
 #define WND_CLASS_NAME "My window class"
@@ -132,6 +133,8 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   case WM_KEYDOWN:
     if (wParam == VK_ESCAPE)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
+    if (wParam == 'P')
+      GLB_IsPause = !GLB_IsPause;
     return 0;
 
   case WM_TIMER:
