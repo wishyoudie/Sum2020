@@ -91,23 +91,41 @@ VOID GlobeDraw( HDC hDC )
   static POINT pnts[GLOBE_H][GLOBE_W];
   static INT z[GLOBE_H][GLOBE_W];
   MATR m;
-  m = MatrMulMatr2(MatrRotateX(30), MatrRotateY(GLB_Time * 30));
-  //m = MatrMulMatr3(MatrRotateX(30), MatrRotateY(GLB_Time * 30), MatrView(VecSet(GLB_Time * 12.26, GLB_Time * 2, 5), VecSet(0, 0, 0), VecSet(0, 1, 0)));
-  //m = MatrView(VecSet(GLB_Time * 12.26, GLB_Time * 2, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
+  DBL Ws = CenterX * 2, Hs = CenterY * 2, Wp = 1.0, Hp = 1.0, ProjDist = 1.0;
+  DBL Size = 1.0;
 
+  if (Ws > Hs)
+    Wp = Size * Ws / Hs, Hp = Size;
+  else
+    Hp = Size * Hs / Ws, Wp = Size;
+
+  m = MatrMulMatr4(
+                   MatrRotateX(30),
+                   MatrRotateY(GLB_Time * 102), 
+                   MatrView(VecSet(sin(GLB_Time * 2.26) * 3, sin(GLB_Time * 2) * 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0)),
+                   //MatrView(VecSet(GLB_Time * 2.26, GLB_Time * 2, 5), VecSet(0, 0, 0), VecSet(0, 1, 0)),
+                   MatrFrustum(-Wp / 2, Wp / 2, -Hp / 2, Hp / 2, Size, 300)
+                   );
+  
+  /* Recalculate screen projection for all points */
   for (i = 0; i < GLOBE_H; i++)
     for (j = 0; j < GLOBE_W; j++)
     {
-      VEC V = PointTransform(Geom[i][j], m);   
-      pnts[i][j].x = CenterX + (INT)V.X;
-      pnts[i][j].y = CenterY - (INT)V.Y;
+      VEC V;
+
+      /* WorldViewProj Transformation */
+      V = VecMulMatr(Geom[i][j], m);                             
+
+      /* Parallel projection */
+      pnts[i][j].x = (INT)((V.X + 1) * Ws / 2.0);
+      pnts[i][j].y = (INT)((-V.Y + 1) * Hs / 2.0);
     }
 
   SelectObject(hDC, GetStockObject(DC_BRUSH));
   SetDCBrushColor(hDC, RGB(55, 146, 243)); 
   SelectObject(hDC, GetStockObject(BLACK_PEN));
 
-  for (k = 1; k < 2; k++) // no back: for k = 1...
+  for (k = 1; k < 2; k++) // with back: for k = 0
   {
     for (i = 0; i < GLOBE_H - 1; i++)
       for (j = 0; j < GLOBE_W - 1; j++)

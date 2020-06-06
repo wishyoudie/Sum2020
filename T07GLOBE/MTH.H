@@ -196,6 +196,15 @@ __inline VEC VecNormalize( VEC V )
   return VecDivNum(V, len);
 } /* End of 'VecNormalize' function */
 
+/* Vector by matrix multiplication (with homogenious divide) function.
+ * ARGUMENTS:
+ *  - source vector;
+ *      VEC V;
+ *  - multiplied matrix;
+ *      MATR M;
+ * RETURNS:
+ *  - (VEC) result vector.
+ */
 __inline VEC VecMulMatr( VEC V, MATR M )
 {
  DBL w = V.X * M.A[0][3] + V.Y * M.A[1][3] + V.Z * M.A[2][3] + M.A[3][3];
@@ -204,6 +213,7 @@ __inline VEC VecMulMatr( VEC V, MATR M )
                (V.X * M.A[0][1] + V.Y * M.A[1][1] + V.Z * M.A[2][1] + M.A[3][1]) / w,
                (V.X * M.A[0][2] + V.Y * M.A[1][2] + V.Z * M.A[2][2] + M.A[3][2]) / w);
 } /* End of 'VelMulMatr' function */
+
 __inline VEC VectorTransform( VEC V, MATR M )
 {
  return VecSet(V.X * M.A[0][0] + V.Y * M.A[1][0] + V.Z * M.A[2][0],
@@ -390,18 +400,92 @@ __inline MATR MatrInverse( MATR M )
 {
   MATR r;
   DBL det = MatrDeterm(M);
-  INT P[][3] = {{1, 2, 3}, {0, 2, 3}, {0, 1, 3}, {0, 1, 2}};
-  INT i, j, s;
 
   if (det == 0)
     return UnitMatrix;
 
-  for (s = 1, i = 0; i < 4; i++)
-    for (j = 0; j < 4; j++, s = -s)
-      r.A[j][i] =
-        s * MatrDeterm3x3(M.A[P[i][0]][P[j][0]], M.A[P[i][0]][P[j][1]], M.A[P[i][0]][P[j][2]],
-                          M.A[P[i][1]][P[j][0]], M.A[P[i][1]][P[j][1]], M.A[P[i][1]][P[j][2]],
-                          M.A[P[i][2]][P[j][0]], M.A[P[i][2]][P[j][1]], M.A[P[i][2]][P[j][2]]) / det;
+  r.A[0][0] =
+    MatrDeterm3x3(M.A[1][1], M.A[1][2], M.A[1][3],
+                  M.A[2][1], M.A[2][2], M.A[2][3],
+                  M.A[3][1], M.A[3][2], M.A[3][3]);
+  r.A[1][0] =
+    MatrDeterm3x3(M.A[1][0], M.A[1][2], M.A[1][3],
+                  M.A[2][0], M.A[2][2], M.A[2][3],
+                  M.A[3][0], M.A[3][2], M.A[3][3]);
+  r.A[2][0] =
+    MatrDeterm3x3(M.A[1][0], M.A[1][1], M.A[1][3],
+                  M.A[2][0], M.A[2][1], M.A[2][3],
+                  M.A[3][0], M.A[3][1], M.A[3][3]);
+  r.A[3][0] =
+    MatrDeterm3x3(M.A[1][0], M.A[1][1], M.A[1][2],
+                  M.A[2][0], M.A[2][1], M.A[2][2],
+                  M.A[3][0], M.A[3][1], M.A[3][2]);
+  r.A[0][1] =
+    MatrDeterm3x3(M.A[0][1], M.A[0][2], M.A[0][3],
+                  M.A[2][1], M.A[2][2], M.A[2][3],
+                  M.A[3][1], M.A[3][2], M.A[3][3]);
+  r.A[1][1] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][2], M.A[0][3],
+                  M.A[2][0], M.A[2][2], M.A[2][3],
+                  M.A[3][0], M.A[3][2], M.A[3][3]);
+  r.A[2][1] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[1][3],
+                  M.A[2][0], M.A[2][1], M.A[2][3],
+                  M.A[3][0], M.A[3][1], M.A[3][3]);
+  r.A[3][1] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][2],
+                  M.A[2][0], M.A[2][1], M.A[2][2],
+                  M.A[3][0], M.A[3][1], M.A[3][2]);
+  r.A[0][2] =
+    MatrDeterm3x3(M.A[0][1], M.A[0][2], M.A[0][3],
+                  M.A[1][1], M.A[1][2], M.A[1][3],
+                  M.A[3][1], M.A[3][2], M.A[3][3]);
+  r.A[1][2] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][2], M.A[0][3],
+                  M.A[1][0], M.A[1][2], M.A[1][3],
+                  M.A[3][0], M.A[3][2], M.A[3][3]);
+  r.A[2][2] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[1][3],
+                  M.A[1][0], M.A[1][1], M.A[2][3],
+                  M.A[3][0], M.A[3][1], M.A[3][3]);
+  r.A[3][2] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][2],
+                  M.A[1][0], M.A[1][1], M.A[1][2],
+                  M.A[3][0], M.A[3][1], M.A[3][2]);
+  r.A[0][3] =
+    MatrDeterm3x3(M.A[0][1], M.A[0][2], M.A[0][3],
+                  M.A[1][1], M.A[1][2], M.A[1][3],
+                  M.A[2][1], M.A[2][2], M.A[2][3]);
+  r.A[1][3] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][2], M.A[0][3],
+                  M.A[1][0], M.A[1][2], M.A[1][3],
+                  M.A[2][0], M.A[2][2], M.A[2][3]);
+  r.A[2][3] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][3],
+                  M.A[1][0], M.A[1][1], M.A[1][3],
+                  M.A[2][0], M.A[2][1], M.A[2][3]);
+  r.A[3][3] =
+    MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][2],
+                  M.A[1][0], M.A[1][1], M.A[1][2],
+                  M.A[2][0], M.A[2][1], M.A[2][2]);
+
+  r.A[0][0] /= det;
+  r.A[1][0] /= det;
+  r.A[2][0] /= det;
+  r.A[3][0] /= det;
+  r.A[0][1] /= det;
+  r.A[1][1] /= det;
+  r.A[2][1] /= det;
+  r.A[3][1] /= det;
+  r.A[0][2] /= det;
+  r.A[1][2] /= det;
+  r.A[2][2] /= det;
+  r.A[3][2] /= det;
+  r.A[0][3] /= det;
+  r.A[1][3] /= det;
+  r.A[2][3] /= det;
+  r.A[3][3] /= det;
+
   return r;
 } /* End of 'MatrInverse' function */
 
@@ -431,6 +515,49 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
   return m;
 } /* End of 'MatrView' function */
 
+/* Perspective frustum projection matrix setup function 
+ * ARGUMENTS:
+ *   - frustum side facets coordinates:
+ *      DBL Left, Right, Bottom, Top, Near, Far;
+ * RETURNS:
+ *   (MATR) result matrix.
+ */
+__inline MATR MatrFrustum( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL Far )
+{
+  MATR m =
+  {
+    {
+      {2 * Near / (Right - Left), 0, 0, 0},
+      {0, 2 * Near / (Top - Bottom), 0, 0},
+      {(Right + Left) / (Right - Left), (Top + Bottom) / (Top - Bottom), -(Far + Near) / (Far - Near), -1},
+      {0, -2 * Near * Far / (Far - Near), 0}
+    }
+  };
+
+  return m;
+} /* End of 'MatrFrustum' function */
+
+/* Perspective ortho projection matrix setup function 
+ * ARGUMENTS:
+ *   - frustum side facets coordinates:
+ *      DBL Left, Right, Bottom, Top, Near, Far;
+ * RETURNS:
+ *   (MATR) result matrix.
+ */
+__inline MATR MatrOrtho( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL Far )
+{
+  MATR m =
+  {
+    {
+      {2 / (Right - Left), 0, 0, 0},
+      {0, 2 / (Top - Bottom), 0, 0},
+      {0, 0, -2 / (Far - Near), 0},
+      {-(Right + Left) / (Right - Left), -(Top + Bottom) / (Top - Bottom), -(Far + Near) / (Far - Near), 1}
+    }
+  };
+
+  return m;
+} /* End of 'MatrOrtho' function */
 
 #endif /* __MTH_H_ */
 

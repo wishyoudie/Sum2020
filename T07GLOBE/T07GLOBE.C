@@ -119,7 +119,7 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
       DeleteObject(hBmFrame);
     hDC = GetDC(hWnd);
     hBmFrame = CreateCompatibleBitmap(hDC, w, h);
-    GlobeSet(w / 2, h / 2, (w < h ? w : h) * 0.8 / 2);
+    GlobeSet(w / 2, h / 2, 1.0);
     ReleaseDC(hWnd, hDC);
     SelectObject(hMemDCFrame, hBmFrame);
     SendMessage(hWnd, WM_TIMER, 0, 0);
