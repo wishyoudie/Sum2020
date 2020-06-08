@@ -92,10 +92,12 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   HDC hDC;
   PAINTSTRUCT ps;
   CHAR Buf[102];
-  static vi6PRIM Sphere;
-  static vi6PRIM Cone;
+  //static vi6PRIM Sphere;
+ //static vi6PRIM Cone;
   static vi6PRIM Cow;
   static vi6PRIM Torus;
+  static vi6PRIM Tree;
+  static vi6PRIM Bench;
 
   switch (Msg)
   {
@@ -107,10 +109,12 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     TimerInit();
     VI6_RndInit(hWnd);
 
-    VI6_RndPrimSphereCreate(&Sphere, VecSet(0, 0, 5), 2, 36, 18); // Sphere
-    VI6_RndPrimConeCreate(&Cone, VecSet(6, 0, 0), 8 * 0.30, 0.47, 18); // Cone
-    VI6_RndPrimTorusCreate(&Torus, VecSet(0, 0, 0), 4, 2, 72, 36); // Torus
+    //VI6_RndPrimSphereCreate(&Sphere, VecSet(0, 0, 0), 2, 36, 18); // Sphere
+   //VI6_RndPrimConeCreate(&Cone, VecSet(6, 0, 0), 8 * 0.30, 0.47, 18); // Cone
+    VI6_RndPrimTorusCreate(&Torus, VecSet(0, 0, 0), 4, 2, 25, 12); // Torus
     VI6_RndPrimLoad(&Cow, "cow.obj"); // Cow
+    VI6_RndPrimLoad(&Tree, "tree.obj"); // Tree
+    VI6_RndPrimLoad(&Bench, "bench.obj"); // Bench
 
     SetTimer(hWnd, 47, 2, NULL);
     return 0;
@@ -125,10 +129,13 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     TimerResponse();
     VI6_RndStart();
 
-    VI6_RndPrimDraw(&Sphere, MatrScale(VecSet1(sin(0.8 * clock() / 1000.0)))); //Sphere
-    VI6_RndPrimDraw(&Cone, MatrScale(VecSet(0.5, fabs(sin(0.08 * clock() / 1000.0)), 0.5))); //Cone
-    VI6_RndPrimDraw(&Torus, MatrMulMatr(MatrScale(VecSet1(0.3)), MatrRotateY(30 * clock() / 1000.0))); //Torus
-    VI6_RndPrimDraw(&Cow, MatrMulMatr(MatrScale(VecSet1(0.3)), MatrRotateY(90 + 30 * clock() / 1000.0))); //Cow
+    //VI6_RndPrimDraw(&Sphere, MatrRotateY(15 * clock() / 1000.0)); //Sphere
+    //VI6_RndPrimDraw(&Cone, MatrScale(VecSet(0.5, fabs(sin(0.08 * clock() / 1000.0)), 0.5))); //Cone
+    VI6_RndPrimDraw(&Torus, MatrMulMatr3(MatrScale(VecSet1(0.05)), MatrRotateY(10 * clock() / 1000.0), MatrTranslate(VecSet(-2, 0, 2)))); //Torus
+    VI6_RndPrimDraw(&Cow, MatrMulMatr3(MatrScale(VecSet1(0.3)), MatrTranslate(VecSet(-0.5, 0, 1.5)), MatrRotateY(-45))); //Cow
+
+    VI6_RndPrimDraw(&Tree, MatrTranslate(VecSet(1, 0, -1))); //Tree
+    VI6_RndPrimDraw(&Bench, MatrScale(VecSet1(0.01))); //Bench
 
     VI6_RndEnd();
     InvalidateRect(hWnd, NULL, FALSE);
