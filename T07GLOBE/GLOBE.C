@@ -89,7 +89,6 @@ VOID GlobeDraw( HDC hDC )
 {
   INT i, j, k, s = 3;
   static POINT pnts[GLOBE_H][GLOBE_W];
-  static INT z[GLOBE_H][GLOBE_W];
   MATR m;
   DBL Ws = CenterX * 2, Hs = CenterY * 2, Wp = 1.0, Hp = 1.0, ProjDist = 1.0;
   DBL Size = 1.0;
@@ -114,7 +113,7 @@ VOID GlobeDraw( HDC hDC )
       VEC V;
 
       /* WorldViewProj Transformation */
-      V = VecMulMatr(Geom[i][j], m);                             
+      V = VecMulMatr(Geom[i][j], m);
 
       /* Parallel projection */
       pnts[i][j].x = (INT)((V.X + 1) * Ws / 2.0);
@@ -143,7 +142,7 @@ VOID GlobeDraw( HDC hDC )
           (p[1].x - p[2].x) * (p[1].y + p[2].y) +
           (p[2].x - p[3].x) * (p[2].y + p[3].y) +
           (p[3].x - p[0].x) * (p[3].y + p[0].y);
-        if (k == 0 && sign <= 0 || k == 1 && sign > 0)
+        if (/* k == 0 && sign <= 0 || */k == 1 && sign > 0)
           Polygon(hDC, p, 4);
       }
 
