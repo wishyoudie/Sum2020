@@ -630,7 +630,7 @@ __inline MATR MatrFrustum( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, D
       {2 * Near / (Right - Left), 0, 0, 0},
       {0, 2 * Near / (Top - Bottom), 0, 0},
       {(Right + Left) / (Right - Left), (Top + Bottom) / (Top - Bottom), -(Far + Near) / (Far - Near), -1},
-      {0, -2 * Near * Far / (Far - Near), 0}
+      {0, 0, -2 * Near * Far / (Far - Near), 0}
     }
   };
 

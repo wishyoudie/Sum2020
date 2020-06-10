@@ -4,59 +4,67 @@
  * PURPOSE: WinAPI Globe Drawing application timer
  */
 
-#include "TIMER.H"
+#include "ANIM/ANIM.H"
 
-/* Global timer data */
-DBL GLB_Time, GLB_DeltaTime;
-DBL GLB_FPS = 30.0;
-BOOL GLB_IsPause = FALSE;
-
-/* Local data */
-static LONG
-  StartTime = -1, PauseTime = 0, OldTime, OldFPSTime, FrameCount;
-
-/* Timer initialization function
- * ARGUMENTS: None.
- * RETURNS: None.    
- */
-VOID TimerInit( VOID )
-{
-  StartTime = PauseTime = OldTime = OldFPSTime = clock();
-  FrameCount = 0;
-  GLB_IsPause = FALSE;
-  GLB_FPS = 30.0;
-} /* End of 'TimerInit' function */
+/* Local timer data */
+static UINT64
+    StartTime,    /* Start program time */
+    OldTime,      /* Previous frame time */
+    OldTimeFPS,   /* Old time FPS measurement */
+    PauseTime,    /* Time during pause period */
+    TimePerSec,   /* Timer resolution */
+    FrameCounter; /* Frames counter */
 
 /* Timer initialization function
  * ARGUMENTS: None.
- * RETURNS:
- *   - FPS:
- *      DBL FPS.
+ * RETURNS: None.
  */
-VOID TimerResponse( VOID )
+VOID VI6_TimerInit( VOID )
 {
-  LONG t = clock();
+  LARGE_INTEGER t;
 
-  if (!GLB_IsPause)
+  QueryPerformanceFrequency(&t);
+  TimePerSec = t.QuadPart;
+  QueryPerformanceCounter(&t);
+  StartTime = OldTime = OldTimeFPS = t.QuadPart;
+  FrameCounter = 0;
+  VI6_Anim.IsPause = FALSE;
+  VI6_Anim.FPS = 30.0;
+  PauseTime = 0;
+} /* End of 'VI6_TimerInit' function */
+
+/* Timer response function
+ * ARGUMENTS: None.
+ * RETURNS: None.
+ */
+VOID VI6_TimerResponse( VOID )
+{
+  LARGE_INTEGER t;
+
+  QueryPerformanceCounter(&t);
+  /* Global time */
+  VI6_Anim.GlobalTime = (DBL)(t.QuadPart - StartTime) / TimePerSec;
+  VI6_Anim.GlobalDeltaTime = (DBL)(t.QuadPart - OldTime) / TimePerSec;
+
+  /* Time with pause */
+  if (VI6_Anim.IsPause)
   {
-    GLB_Time = (DBL)(t - PauseTime - StartTime) / CLOCKS_PER_SEC;
-    GLB_DeltaTime = (DBL)(t - OldTime) / CLOCKS_PER_SEC;
+    VI6_Anim.DeltaTime = 0;
+    PauseTime += t.QuadPart - OldTime;
   }
   else
   {
-    PauseTime += t - OldTime;
-    GLB_DeltaTime = 0;
+    VI6_Anim.DeltaTime = VI6_Anim.GlobalDeltaTime;
+    VI6_Anim.Time = (DBL)(t.QuadPart - PauseTime - StartTime) / TimePerSec;
   }
-
-  FrameCount++;
-  
-  if (t - OldFPSTime > CLOCKS_PER_SEC)
+  /* FPS */
+  FrameCounter++;
+  if (t.QuadPart - OldTimeFPS > TimePerSec)
   {
-    GLB_FPS = FrameCount * (CLOCKS_PER_SEC / (DBL)(t - OldFPSTime));
-    OldFPSTime = t;
-    FrameCount = 0;
+    VI6_Anim.FPS = FrameCounter * TimePerSec / (DBL)(t.QuadPart - OldTimeFPS);
+    OldTimeFPS = t.QuadPart;
+    FrameCounter = 0;
   }
-  OldTime = t;
-} /* End of 'TimerResponse' function */
-
+  OldTime = t.QuadPart;
+} /* End of 'VI6_TimerResponse' function */
 /* END OF TIMER.C FILE */

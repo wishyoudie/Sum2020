@@ -26,7 +26,6 @@
 #include <windows.h>
 
 #include "MTH/MTH.H"
-#include "TIMER.H"
 
 /* 64 bit integer data type */
 typedef long long INT64;

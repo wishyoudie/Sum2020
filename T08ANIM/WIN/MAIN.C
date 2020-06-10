@@ -5,7 +5,7 @@
  *          WinAPI startup module.
  */
 
-#include "../ANIM/RND/RND.H"
+#include "../UNITS/UNITS.H"
 
  /* Window class name */
 #define WND_CLASS_NAME "My window class"
@@ -61,6 +61,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 
   ShowWindow(hWnd, CmdShow);
 
+  VI6_AnimUnitAdd(VI6_UnitCreateBall());
+  VI6_AnimUnitAdd(VI6_UnitCreateCtrl());
+
   /* Message loop */
   while (TRUE)
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -91,13 +94,13 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   HDC hDC;
   PAINTSTRUCT ps;
-  CHAR Buf[102];
   //static vi6PRIM Sphere;
- //static vi6PRIM Cone;
-  static vi6PRIM Cow;
-  static vi6PRIM Torus;
-  static vi6PRIM Tree;
-  static vi6PRIM Bench;
+  //static vi6PRIM Cone;
+  //static vi6PRIM Cow;
+  //static vi6PRIM Torus;
+  //static vi6PRIM Tree;
+  //static vi6PRIM Bench;
+  extern VI6_MouseWheel;
 
   switch (Msg)
   {
@@ -106,48 +109,51 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
       GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + 2 * GetSystemMetrics(SM_CYBORDER);
     return 0;
   case WM_CREATE:
-    TimerInit();
-    VI6_RndInit(hWnd);
+    VI6_AnimInit(hWnd);
 
     //VI6_RndPrimSphereCreate(&Sphere, VecSet(0, 0, 0), 2, 36, 18); // Sphere
-   //VI6_RndPrimConeCreate(&Cone, VecSet(6, 0, 0), 8 * 0.30, 0.47, 18); // Cone
-    VI6_RndPrimTorusCreate(&Torus, VecSet(0, 0, 0), 4, 2, 25, 12); // Torus
-    VI6_RndPrimLoad(&Cow, "cow.obj"); // Cow
-    VI6_RndPrimLoad(&Tree, "tree.obj"); // Tree
-    VI6_RndPrimLoad(&Bench, "bench.obj"); // Bench
+    //VI6_RndPrimConeCreate(&Cone, VecSet(6, 0, 0), 8 * 0.30, 0.47, 18); // Cone
+    //VI6_RndPrimTorusCreate(&Torus, VecSet(0, 0, 0), 4, 2, 25, 12); // Torus
+    //VI6_RndPrimLoad(&Cow, "cow.obj"); // Cow
+    //VI6_RndPrimLoad(&Tree, "tree.obj"); // Tree
+    //VI6_RndPrimLoad(&Bench, "bench.obj"); // Bench
 
     SetTimer(hWnd, 47, 2, NULL);
     return 0;
   case WM_SIZE:
-    VI6_RndResize(LOWORD(lParam), HIWORD(lParam));
+    VI6_AnimResize(LOWORD(lParam), HIWORD(lParam));
     return 0;
   case WM_KEYDOWN:
     if (wParam == VK_ESCAPE)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
+  case WM_SYSKEYDOWN:
+    if (wParam == VK_RETURN)
+      VI6_AnimFlipFullScreen();
+    return 0;
+  case WM_LBUTTONDOWN:
+    SetCapture(hWnd);
+    return 0;
+  case WM_LBUTTONUP:
+    ReleaseCapture();
+    return 0;
+  case WM_MOUSEWHEEL:
+    VI6_MouseWheel += (SHORT)HIWORD(wParam);
     return 0;
   case WM_TIMER:
-    TimerResponse();
-    VI6_RndStart();
-
+    VI6_AnimRender();
     //VI6_RndPrimDraw(&Sphere, MatrRotateY(15 * clock() / 1000.0)); //Sphere
     //VI6_RndPrimDraw(&Cone, MatrScale(VecSet(0.5, fabs(sin(0.08 * clock() / 1000.0)), 0.5))); //Cone
-    VI6_RndPrimDraw(&Torus, MatrMulMatr3(MatrScale(VecSet1(0.05)), MatrRotateY(10 * clock() / 1000.0), MatrTranslate(VecSet(-2, 0, 2)))); //Torus
-    VI6_RndPrimDraw(&Cow, MatrMulMatr3(MatrScale(VecSet1(0.3)), MatrTranslate(VecSet(-0.5, 0, 1.5)), MatrRotateY(-45))); //Cow
-
-    VI6_RndPrimDraw(&Tree, MatrTranslate(VecSet(1, 0, -1))); //Tree
-    VI6_RndPrimDraw(&Bench, MatrScale(VecSet1(0.01))); //Bench
-
-    VI6_RndEnd();
+    //VI6_RndPrimDraw(&Torus, MatrMulMatr3(MatrScale(VecSet1(0.05)), MatrRotateY(10 * clock() / 1000.0), MatrTranslate(VecSet(-2, 0, 2)))); //Torus
+    //VI6_RndPrimDraw(&Cow, MatrMulMatr3(MatrScale(VecSet1(0.3)), MatrTranslate(VecSet(-0.5, 0, 1.5)), MatrRotateY(15 * VI6_Anim.Time / 1000.0))); //Cow
+    //VI6_RndPrimDraw(&Tree, MatrTranslate(VecSet(1, 0, -1))); //Tree
+    //VI6_RndPrimDraw(&Bench, MatrScale(VecSet1(0.01))); //Bench
     InvalidateRect(hWnd, NULL, FALSE);
-    SetTextColor(VI6_hRndDCFrame, RGB(0, 0, 0));
-    SetBkMode(VI6_hRndDCFrame, TRANSPARENT);
-    TextOut(VI6_hRndDCFrame, 0, 0, Buf, sprintf(Buf, "FPS: %.3f", GLB_FPS));
     return 0;
   case WM_ERASEBKGND:
     return 1;
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    VI6_RndCopyFrame(hDC);
+    VI6_AnimCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0; 
   case WM_CLOSE:
@@ -155,8 +161,9 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
       DestroyWindow(hWnd);
     return 0;
   case WM_DESTROY:
-    VI6_RndPrimFree(&Cow);
-    VI6_RndClose();
+    //VI6_RndPrimFree(&Cow);
+    //VI6_RndPrimFree(&Tree);
+    VI6_AnimClose();
     KillTimer(hWnd, 47);
     PostQuitMessage(30);
     return 0;

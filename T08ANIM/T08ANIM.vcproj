@@ -186,10 +186,6 @@
 				RelativePath=".\TIMER.C"
 				>
 			</File>
-			<File
-				RelativePath=".\TIMER.H"
-				>
-			</File>
 			<Filter
 				Name="Math Support"
 				>
@@ -201,6 +197,26 @@
 			<Filter
 				Name="Animation System"
 				>
+				<File
+					RelativePath=".\ANIM\ANIM.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\ANIM.H"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\INPUT.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNIT.C"
+					>
+				</File>
+				<File
+					RelativePath=".\UNITS\UNITS.H"
+					>
+				</File>
 				<Filter
 					Name="Rendering System"
 					>
@@ -227,6 +243,18 @@
 				>
 				<File
 					RelativePath=".\WIN\MAIN.C"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Units"
+				>
+				<File
+					RelativePath=".\UNITS\U_BBALL.C"
+					>
+				</File>
+				<File
+					RelativePath=".\UNITS\U_CTRL.C"
 					>
 				</File>
 			</Filter>
