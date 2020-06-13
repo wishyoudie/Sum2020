@@ -18,6 +18,7 @@ extern HWND VI6_hRndWnd;        /* Work window handle */
 extern HDC VI6_hRndDC;     /* Work window device context  */
 extern INT VI6_RndFrameW, VI6_RndFrameH; /* Work window size */
 extern HGLRC VI6_hRndGLRC; /* OpenGL rendering context */
+extern INT VI6_RndProgId;
 
 /* Camera/projection parameters */
 extern DBL
@@ -41,17 +42,33 @@ VOID VI6_RndEnd( VOID );
 VOID VI6_RndProjSet( VOID );
 VOID VI6_RndCamSet( VEC Loc, VEC At, VEC Up );
 
-/* Primitives functions */
+/***
+ * Primitives functions
+ ***/
 
 /* Basic functions */
-BOOL VI6_RndPrimCreate( vi6PRIM *Pr, INT NoofV, INT NoofI );
+BOOL VI6_RndPrimCreate( vi6PRIM *Pr, vi6PRIM_TYPE Type, vi6VERTEX *V, INT NumOfV, INT *I, INT NumOfI );
 VOID VI6_RndPrimFree( vi6PRIM *Pr );
 VOID VI6_RndPrimDraw( vi6PRIM *Pr, MATR World );
 BOOL VI6_RndPrimLoad( vi6PRIM *Pr, CHAR *FileName );
+BOOL VI6_RndPrimCreateFromGrid( vi6PRIM *Pr, vi6VERTEX *V, INT W, INT H, BOOL IsNormalsNeed );
+
 /* Specific shapes */
-VOID VI6_RndPrimSphereCreate( vi6PRIM *Pr, VEC C, DBL R, INT SplitW, INT SplitH );
-VOID VI6_RndPrimTorusCreate( vi6PRIM *Pr, VEC C, DBL R1, DBL R2, INT SplitW, INT SplitH );
-VOID VI6_RndPrimConeCreate( vi6PRIM *Pr, VEC C, DBL H, DBL R, INT N );
+BOOL VI6_RndPrimSphereCreate( vi6PRIM *Pr, VEC C, DBL R, INT SplitW, INT SplitH );
+BOOL VI6_RndPrimTorusCreate( vi6PRIM *Pr, VEC C, DBL R1, DBL R2, INT SplitW, INT SplitH );
+///VOID VI6_RndPrimConeCreate( vi6PRIM *Pr, VEC C, DBL H, DBL R, INT N );
+
+/***
+ * Shaders functions
+ ***/
+
+INT VI6_RndShdLoad( CHAR *ShaderFileNamePrefix );
+VOID VI6_RndShdDelete( INT ProgId );
+INT VI6_RndShdAdd( CHAR *ShaderFileNamePrefix );
+VOID VI6_RndShdUpdate( VOID );
+VOID VI6_RndShdInit( VOID );
+VOID VI6_RndShdClose( VOID );
+
 
 #endif /* __RND_H_ */
 

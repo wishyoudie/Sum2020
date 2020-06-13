@@ -5,6 +5,7 @@
  *          Render system base functions module.
  */
 
+#include <time.h>
 #include "RND.H"
 
 /* Link libraries */
@@ -52,6 +53,9 @@ VOID VI6_RndInit( HWND hWnd )
   /* Set default render parametres */
   glClearColor(0.30, 0.50, 0.8, 1);
   glEnable(GL_DEPTH_TEST);
+  
+  glEnable(GL_PRIMITIVE_RESTART);
+  glPrimitiveRestartIndex(-1);
 
   VI6_RndFrameW = 47;
   VI6_RndFrameH = 47;
@@ -61,6 +65,8 @@ VOID VI6_RndInit( HWND hWnd )
 
   VI6_RndProjSet();
   VI6_RndCamSet(VecSet(3, 3, 3), VecSet(0, 0, 0), VecSet(0, 1, 0));
+
+  
 } /* End of 'VI6_RndInit' function */
 
 /* Render close function
@@ -69,6 +75,7 @@ VOID VI6_RndInit( HWND hWnd )
  */
 VOID VI6_RndClose( VOID )
 {
+  VI6_RndShdDelete(VI6_RndProgId);
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(VI6_hRndGLRC);
   ReleaseDC(VI6_hRndWnd, VI6_hRndDC);
@@ -109,8 +116,16 @@ VOID VI6_RndCopyFrame( VOID )
  */
 VOID VI6_RndStart( VOID )
 {
+  INT t = clock();
+  static INT old_time;
   /* Clear background */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  if (t - old_time > CLOCKS_PER_SEC)
+  {
+    VI6_RndShdDelete(VI6_RndProgId);
+    VI6_RndProgId = VI6_RndShdLoad("DEFAULT");
+    old_time = t;
+  }
   
   /* Set draw parameteres */
 } /* End of 'VI6_RndStart' function */

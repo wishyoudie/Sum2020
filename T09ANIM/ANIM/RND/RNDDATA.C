@@ -12,6 +12,7 @@ HWND VI6_hRndWnd;        /* Work window handle */
 HDC VI6_hRndDC;     /* Work window memory device context  */
 INT VI6_RndFrameW, VI6_RndFrameH; /* Work window size */
 HGLRC VI6_hRndGLRC; /* OpenGL rendering context */
+INT VI6_RndProgId;
 
 /* Camera/projection parameters */
 DBL

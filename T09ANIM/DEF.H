@@ -28,25 +28,38 @@
 
 #include "MTH/MTH.H"
 
+#define VI6_STR_MAX 1000
+
 /* 64 bit integer data type */
 typedef long long INT64;
 typedef unsigned long long UINT64;
 
-/* Primitives */
+/* Primitive vertex structure */
 typedef struct tagvi6VERTEX
 {
   VEC P;  /* Vertex position */
+  VEC2 T;
+  VEC N;
+  VEC4 C;
 } vi6VERTEX;
-
+/* Primitive type structure */
+typedef enum tagvi6PRIM_TYPE
+{
+  VI6_RND_PRIM_TRIMESH,    /* Triangle mesh - array of triangles */
+  VI6_RND_PRIM_TRISTRIP,   /* Triangle strip - array of stripped triangles */
+  VI6_RND_PRIM_LINES,      /* Line segments (by 2 points) */
+  VI6_RND_PRIM_POINTS,     /* Array of points */
+} vi6PRIM_TYPE;
+/* Primitive structure */
 typedef struct tagvi6PRIM
 {
-  vi6VERTEX *V; /* Vertex attributes array */
-  INT NumOfV;   /* Number of vertices */
-
-  INT *I;       /* Index array (for trimesh – by 3 ones) */
-  INT NumOfI;   /* Number of indices */
-
-  MATR Trans;   /* Additional transformation matrix */
+  vi6PRIM_TYPE Type;   /* Primitive type */
+  INT NumOfElements;   /* Number of vertices */
+  INT 
+     VA,               /* Vertex array Id */
+     VBuf,             /* Vertex buffer Id */
+     IBuf;             /* Index buffer Id (if 0 - use only vertex buffer) */
+  MATR Trans;          /* Additional transformation matrix */
 } vi6PRIM;
 
 #endif /* __DEF_H_ */

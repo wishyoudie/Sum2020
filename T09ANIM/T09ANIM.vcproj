@@ -245,6 +245,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ANIM\RND\RNDSHD.C"
+						>
+					</File>
+					<File
 						RelativePath=".\ANIM\RND\wglext.h"
 						>
 					</File>
@@ -266,7 +270,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\UNITS\U_COW.C"
+					>
+				</File>
+				<File
 					RelativePath=".\UNITS\U_CTRL.C"
+					>
+				</File>
+				<File
+					RelativePath=".\UNITS\U_HILLS.C"
+					>
+				</File>
+				<File
+					RelativePath=".\UNITS\U_TORUS.C"
 					>
 				</File>
 			</Filter>

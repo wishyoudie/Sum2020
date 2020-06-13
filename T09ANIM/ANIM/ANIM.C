@@ -33,6 +33,9 @@ VOID VI6_AnimInit( HWND hWnd )
   /* Input devices initialization */
   VI6_AnimInputInit();
 
+  /* Shader initialization */
+  VI6_RndShdInit();
+
 } /* End of 'VI6_AnimInit' function */
 
 /* Animation system deinitialization function
@@ -49,6 +52,11 @@ VOID VI6_AnimClose( VOID )
     free(VI6_Anim.Units[i]);
   }
   VI6_Anim.NumOfUnits = 0;
+  
+  /* Close shaders */
+  VI6_RndShdClose();
+  
+  /* Close render */
   VI6_RndClose();
 } /* End of 'VI6_AnimClose' function */
 
