@@ -97,7 +97,7 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   //static vi6PRIM Sphere;
   //static vi6PRIM Cone;
   //static vi6PRIM Cow;
-  //static vi6PRIM Torus;
+  static vi6PRIM Torus;
   //static vi6PRIM Tree;
   //static vi6PRIM Bench;
   extern VI6_MouseWheel;
@@ -113,7 +113,7 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 
     //VI6_RndPrimSphereCreate(&Sphere, VecSet(0, 0, 0), 2, 36, 18); // Sphere
     //VI6_RndPrimConeCreate(&Cone, VecSet(6, 0, 0), 8 * 0.30, 0.47, 18); // Cone
-    //VI6_RndPrimTorusCreate(&Torus, VecSet(0, 0, 0), 4, 2, 25, 12); // Torus
+    VI6_RndPrimTorusCreate(&Torus, VecSet(0, 0, 0), 4, 2, 25, 12); // Torus
     //VI6_RndPrimLoad(&Cow, "cow.obj"); // Cow
     //VI6_RndPrimLoad(&Tree, "tree.obj"); // Tree
     //VI6_RndPrimLoad(&Bench, "bench.obj"); // Bench
@@ -143,7 +143,7 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     VI6_AnimRender();
     //VI6_RndPrimDraw(&Sphere, MatrRotateY(15 * clock() / 1000.0)); //Sphere
     //VI6_RndPrimDraw(&Cone, MatrScale(VecSet(0.5, fabs(sin(0.08 * clock() / 1000.0)), 0.5))); //Cone
-    //VI6_RndPrimDraw(&Torus, MatrMulMatr3(MatrScale(VecSet1(0.05)), MatrRotateY(10 * clock() / 1000.0), MatrTranslate(VecSet(-2, 0, 2)))); //Torus
+    VI6_RndPrimDraw(&Torus, MatrMulMatr3(MatrScale(VecSet1(0.05)), MatrRotateY(10 * clock() / 1000.0), MatrTranslate(VecSet(-2, 0, 2)))); //Torus
     //VI6_RndPrimDraw(&Cow, MatrMulMatr3(MatrScale(VecSet1(0.3)), MatrTranslate(VecSet(-0.5, 0, 1.5)), MatrRotateY(15 * VI6_Anim.Time / 1000.0))); //Cow
     //VI6_RndPrimDraw(&Tree, MatrTranslate(VecSet(1, 0, -1))); //Tree
     //VI6_RndPrimDraw(&Bench, MatrScale(VecSet1(0.01))); //Bench
@@ -163,6 +163,7 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   case WM_DESTROY:
     //VI6_RndPrimFree(&Cow);
     //VI6_RndPrimFree(&Tree);
+    VI6_RndPrimFree(&Torus);
     VI6_AnimClose();
     KillTimer(hWnd, 47);
     PostQuitMessage(30);
