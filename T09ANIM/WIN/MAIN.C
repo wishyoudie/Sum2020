@@ -35,7 +35,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 
   SetDbgMemHooks();
 
-  /* Fill window class structure */
   wc.style = CS_HREDRAW | CS_VREDRAW;
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
@@ -47,26 +46,23 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   wc.lpszMenuName = NULL;
   wc.lpfnWndProc = WinFunc;
 
-  /* Register window class */
   if (!RegisterClass(&wc))
   {
     MessageBox(NULL, "Error register window class", "Error", MB_OK | MB_ICONERROR);
     return 0;
   }
 
-  /* Window creation */
-  hWnd = CreateWindow(WND_CLASS_NAME, "T09ANIM", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 
+  hWnd = CreateWindow(WND_CLASS_NAME, "--=HAPPY CHICK=--", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 
     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
     NULL, NULL, hInstance, NULL);
 
   ShowWindow(hWnd, CmdShow);
 
-  //VI6_AnimUnitAdd(VI6_UnitCreateBall());
-  //VI6_AnimUnitAdd(VI6_UnitCreateCow());
+  VI6_AnimUnitAdd(VI6_UnitCreateEnvi());
   VI6_AnimUnitAdd(VI6_UnitCreateCtrl());
-  VI6_AnimUnitAdd(VI6_UnitCreateHills());
+  VI6_AnimUnitAdd(VI6_UnitCreateChick());
+  VI6_AnimUnitAdd(VI6_UnitCreateEgg());
 
-  /* Message loop */
   while (TRUE)
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
@@ -96,9 +92,6 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   HDC hDC;
   PAINTSTRUCT ps;
-  //static vi6PRIM Cone;
-  //static vi6PRIM Tree;
-  //static vi6PRIM Bench;
   extern VI6_MouseWheel;
 
   switch (Msg)
@@ -109,11 +102,7 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     return 0;
   case WM_CREATE:
     VI6_AnimInit(hWnd);
-
-    //VI6_RndPrimConeCreate(&Cone, VecSet(6, 0, 0), 8 * 0.30, 0.47, 18); // Cone
-    //VI6_RndPrimLoad(&Tree, "tree.obj"); // Tree
-    //VI6_RndPrimLoad(&Bench, "bench.obj"); // Bench
-
+    VI6_AnimFlipFullScreen();
     SetTimer(hWnd, 47, 2, NULL);
     return 0;
   case WM_SIZE:
@@ -125,6 +114,9 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   case WM_SYSKEYDOWN:
     if (wParam == VK_RETURN)
       VI6_AnimFlipFullScreen();
+    return 0;
+  case WM_SETCURSOR:
+    ShowCursor(FALSE);
     return 0;
   case WM_LBUTTONDOWN:
     SetCapture(hWnd);
@@ -138,10 +130,6 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   case WM_TIMER:
     VI6_AnimRender();
     VI6_RndCopyFrame();
-    //VI6_RndPrimDraw(&Cone, MatrScale(VecSet(0.5, fabs(sin(0.08 * clock() / 1000.0)), 0.5))); //Cone
-    //VI6_RndPrimDraw(&Tree, MatrTranslate(VecSet(1, 0, -1))); //Tree
-    //VI6_RndPrimDraw(&Bench, MatrScale(VecSet1(0.01))); //Bench
-    /*InvalidateRect(hWnd, NULL, FALSE);*/
     return 0;
   case WM_ERASEBKGND:
     return 1;
@@ -151,12 +139,15 @@ LRESULT CALLBACK WinFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     EndPaint(hWnd, &ps);
     return 0; 
   case WM_CLOSE:
-    if (MessageBox(hWnd, "Are you sure?", "Close", MB_YESNO | MB_DEFBUTTON1 | MB_ICONQUESTION) == IDYES)
+    if (VI6_GameStage == 2)
+    {
+      DestroyWindow(hWnd);
+      return 0;
+    }
+    if (MessageBox(hWnd, "Do you really wish to quit without finishing the game?", "--=HAPPY CHICK=--", MB_YESNO | MB_DEFBUTTON1 | MB_ICONERROR) == IDYES)
       DestroyWindow(hWnd);
     return 0;
   case WM_DESTROY:
-    //VI6_RndPrimFree(&Tree);
-    //VI6_RndPrimFree(&Bench);
     VI6_AnimClose();
     KillTimer(hWnd, 47);
     PostQuitMessage(30);

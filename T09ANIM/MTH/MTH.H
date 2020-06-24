@@ -16,7 +16,9 @@
 
 /* Degrees to radians conversion */
 #define D2R(A) ((A) * (PI / 180.0))
+#define R2D(A) ((A) * (180.0 / PI))
 #define Degree2Radian(a) D2R(a)
+#define Radian2Degree(a) R2D(a)
 
 /* Base float point types */
 typedef double DBL;
@@ -515,7 +517,7 @@ __inline FLT MatrDeterm( MATR M )
                                M.A[3][0], M.A[3][1], M.A[3][2]);
 } /* End of 'MatrDeterm' function */
 
-/* Calculated inverse matrix function
+/* Calculate inverse matrix function
  * ARGUMENTS:
  *   - Matrix:
  *      - MATR M;
@@ -685,6 +687,38 @@ __inline MATR MatrOrtho( FLT Left, FLT Right, FLT Bottom, FLT Top, FLT Near, FLT
 
   return m;
 } /* End of 'MatrOrtho' function */
+
+/* Transpose matrix function
+ * ARGUMENTS:
+ *   - Matrix to be transposed:
+ *      - MATR m;
+ * RETURNS:
+ *   - Transposed matrix:
+ *      - MATR trm.
+ */
+__inline MATR MatrTranspose( MATR m )
+{
+  MATR trm;
+  
+  trm.A[0][0] = m.A[0][0];
+  trm.A[0][1] = m.A[1][0];
+  trm.A[0][2] = m.A[2][0];
+  trm.A[0][3] = m.A[3][0];
+  trm.A[1][0] = m.A[0][1];
+  trm.A[1][1] = m.A[1][1];
+  trm.A[1][2] = m.A[2][1];
+  trm.A[1][3] = m.A[3][1];
+  trm.A[2][0] = m.A[0][2];
+  trm.A[2][1] = m.A[1][2];
+  trm.A[2][2] = m.A[2][2];
+  trm.A[2][3] = m.A[3][2];
+  trm.A[3][0] = m.A[0][3];
+  trm.A[3][1] = m.A[1][3];
+  trm.A[3][2] = m.A[2][3];
+  trm.A[3][3] = m.A[3][3];
+
+  return trm;
+} /* End of 'MatrTranspose' function */
 
 #endif /* __MTH_H_ */
 

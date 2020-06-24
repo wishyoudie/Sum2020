@@ -5,7 +5,6 @@
  *          Render primitives module.
  */
 
-//#include "RND.H"
 #include "../ANIM.H"
 
 /* Create primitive function
@@ -26,6 +25,28 @@ BOOL VI6_RndPrimCreate( vi6PRIM *Pr, vi6PRIM_TYPE Type, vi6VERTEX *V, INT NumOfV
 
   if (V != NULL)
   {
+    INT i;
+
+    Pr->MinBB = Pr->MaxBB = V[0].P;
+    for (i = 1; i < NumOfV; i++)
+    {
+      if (Pr->MinBB.X > V[i].P.X)
+        Pr->MinBB.X = V[i].P.X;
+      if (Pr->MinBB.Y > V[i].P.Y)
+        Pr->MinBB.Y = V[i].P.Y;
+      if (Pr->MinBB.Z > V[i].P.Z)
+        Pr->MinBB.Z = V[i].P.Z;
+    }
+    for (i = 1; i < NumOfV; i++)
+    {
+      if (Pr->MaxBB.X < V[i].P.X)
+        Pr->MaxBB.X = V[i].P.X;
+      if (Pr->MaxBB.Y < V[i].P.Y)
+        Pr->MaxBB.Y = V[i].P.Y;
+      if (Pr->MaxBB.Z < V[i].P.Z)
+        Pr->MaxBB.Z = V[i].P.Z;
+    }
+    
     /* Generate buffers */
     glGenBuffers(1, &Pr->VBuf);
     glGenVertexArrays(1, &Pr->VA);
@@ -94,8 +115,10 @@ VOID VI6_RndPrimFree( vi6PRIM *Pr )
  */
 VOID VI6_RndPrimDraw( vi6PRIM *Pr, MATR World )
 {
-  MATR wvp = MatrMulMatr(World, MatrMulMatr(VI6_RndMatrView, VI6_RndMatrProj));
-  INT loc;
+  MATR 
+    w = MatrMulMatr(Pr->Trans, World),
+    wvp = MatrMulMatr(w, MatrMulMatr(VI6_RndMatrView, VI6_RndMatrProj));
+  INT loc, ProgId;
   INT gl_prim_type = Pr->Type == VI6_RND_PRIM_LINES ? GL_LINES:
                      Pr->Type == VI6_RND_PRIM_TRIMESH ? GL_TRIANGLES:
                      Pr->Type == VI6_RND_PRIM_TRISTRIP ? GL_TRIANGLE_STRIP:
@@ -103,27 +126,70 @@ VOID VI6_RndPrimDraw( vi6PRIM *Pr, MATR World )
 
   glLoadMatrixf(wvp.A[0]);
 
-  glUseProgram(VI6_RndProgId);
+  ///glUseProgram(VI6_RndProgId);
+  ProgId = VI6_RndMtlApply(Pr->MtlNo);
 
-  if ((loc = glGetUniformLocation(VI6_RndProgId, "MatrWVP")) != -1)
+  if ((loc = glGetUniformLocation(ProgId, "MatrWVP")) != -1)
     glUniformMatrix4fv(loc, 1, FALSE, wvp.A[0]);
-  if ((loc = glGetUniformLocation(VI6_RndProgId, "Time")) != -1)
+  if ((loc = glGetUniformLocation(ProgId, "MatrW")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, w.A[0]);
+  if ((loc = glGetUniformLocation(ProgId, "MatrV")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, VI6_RndMatrView.A[0]);
+  if ((loc = glGetUniformLocation(ProgId, "MatrWInv")) != -1)
+  {
+    MATR winv = MatrTranspose(MatrInverse(w));
+    glUniformMatrix4fv(loc, 1, FALSE, winv.A[0]);
+  }
+  if ((loc = glGetUniformLocation(ProgId, "Time")) != -1)
     glUniform1f(loc, VI6_Anim.Time);
+  if ((loc = glGetUniformLocation(ProgId, "GlobalTime")) != -1)
+    glUniform1f(loc, VI6_Anim.GlobalTime);
+  if ((loc = glGetUniformLocation(ProgId, "CamLoc")) != -1)
+    glUniform3fv(loc, 1, &VI6_RndCamLoc.X);
+  if ((loc = glGetUniformLocation(ProgId, "CamRight")) != -1)
+    glUniform3fv(loc, 1, &VI6_RndCamRight.X);
+  if ((loc = glGetUniformLocation(ProgId, "CamUp")) != -1)
+    glUniform3fv(loc, 1, &VI6_RndCamUp.X);
+  if ((loc = glGetUniformLocation(ProgId, "CamDir")) != -1)
+    glUniform3fv(loc, 1, &VI6_RndCamDir.X);
 
-  if (Pr->IBuf != 0)
-  {
-    glBindVertexArray(Pr->VA);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
-    glDrawElements(gl_prim_type, Pr->NumOfElements, GL_UNSIGNED_INT, NULL);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-  }
+  /* Addon parameters */
+  if ((loc = glGetUniformLocation(ProgId, "Addon0")) != -1)
+    glUniform1f(loc, VI6_RndShdAddon0);
+  if ((loc = glGetUniformLocation(ProgId, "Addon1")) != -1)
+    glUniform1f(loc, VI6_RndShdAddon1);
+  if ((loc = glGetUniformLocation(ProgId, "Addon2")) != -1)
+    glUniform1f(loc, VI6_RndShdAddon2);
+  if (Pr->InstanceCnt < 2)
+    if (Pr->IBuf != 0)
+    {
+      glBindVertexArray(Pr->VA);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
+      glDrawElements(gl_prim_type, Pr->NumOfElements, GL_UNSIGNED_INT, NULL);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+      glBindVertexArray(0);
+    }
+    else
+    {
+      glBindVertexArray(Pr->VA);
+      glDrawArrays(gl_prim_type, 0, Pr->NumOfElements);
+      glBindVertexArray(0);
+    }
   else
-  {
-    glBindVertexArray(Pr->VA);
-    glDrawArrays(gl_prim_type, 0, Pr->NumOfElements);
-    glBindVertexArray(0);
-  }
+    if (Pr->IBuf != 0)
+      {
+        glBindVertexArray(Pr->VA);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
+        glDrawElementsInstanced(gl_prim_type, Pr->NumOfElements, GL_UNSIGNED_INT, NULL, Pr->InstanceCnt);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+      }
+      else
+      {
+        glBindVertexArray(Pr->VA);
+        glDrawArraysInstanced(gl_prim_type, 0, Pr->NumOfElements, Pr->InstanceCnt);
+        glBindVertexArray(0);
+      }
 
   glUseProgram(0);
 } /* End of 'VI6_RndPrimDraw' function */
@@ -164,7 +230,7 @@ BOOL VI6_RndPrimSphereCreate( vi6PRIM *Pr, VEC C, DBL R, INT SplitW, INT SplitH 
         z = R * sin(theta) * cos(phi);
       V[k].P = VecSet(C.X + x, C.Y + y, C.Z + z);
 
-      V[k].C = Vec4Set(0.8, 0.3, 0.47, 1);
+      V[k].C = Vec4Set(1, 1, 1, 1);
       V[k].N = VecSet(x, y, z);
       k++;
     }
@@ -227,44 +293,6 @@ BOOL VI6_RndPrimTorusCreate( vi6PRIM *Pr, VEC C, DBL R1, DBL R2, INT SplitW, INT
     free(V);
   return TRUE;
 } /* End of 'VI6_RndPrimTorusCreate' function */
-
-/* Create cone primitive function
- * ARGUMENTS:
- *   - Primitive:
- *      - vi6PRIM *pr;
- *   - Center:
- *      - VEC C;
- *   - Height:
- *      - DBL H;
-  *   - Radius:
- *      - DBL R;
- *   - Amount of triangles:
- *      - INT N;
- * RETURNS: None.
- */
-/*VOID VI6_RndPrimConeCreate( vi6PRIM *Pr, VEC C, DBL H, DBL R, INT N )
-{
-  INT i, k;
-  DBL angle;
-
-  VI6_RndPrimCreate(Pr, N + 1, 3 * (N - 1));
-
-  
-  k = 0;
-  Pr->V[k++].P = VecSet(C.X, C.Y + H, C.Z);
-
-  for (i = 0, angle = 0; i < N; i++, angle += 2 * PI / (N - 1))
-    Pr->V[k++].P = VecSet(C.X + R * sin(angle), C.Y, C.Z + R * cos(angle));
-
-  
-  k = 0;
-  for (i = 0; i < N - 1; i++)
-  {
-    Pr->I[k++] = 0;
-    Pr->I[k++] = i + 1;
-    Pr->I[k++] = i + 2;
-  }
-} End of 'VI6_RndPrimConeCreate' function */
 
 /* Load primitive from .OBJ file function
  * ARGUMENTS:
@@ -353,7 +381,7 @@ BOOL VI6_RndPrimLoad( vi6PRIM *Pr, CHAR *FileName )
     for (i = 0; i < nv; i++)
     {
       V[i].N = VecNormalize(V[i].N);
-      V[i].C = Vec4Set(0.8, 0.47, 0.26, 1);
+      V[i].C = Vec4Set(1, 1, 1, 1);
     }
 
   VI6_RndPrimCreate(Pr, VI6_RND_PRIM_TRIMESH, V, nv, Ind, nf);

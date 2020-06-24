@@ -8,6 +8,8 @@
 #define __ANIM_H_
 
 #include "RND/RND.H"
+#include "RND/RES/RNDRES.H"
+
 #define VI6_MAX_UNITS 3000
 typedef struct tagvi6UNIT vi6UNIT;
 typedef struct tagvi6ANIM

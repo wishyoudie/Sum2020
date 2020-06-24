@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="X:\TGRKIT\INCLUDE;"
+				AdditionalIncludeDirectories="X:\TGRKIT\INCLUDE;$(OPENAL_DIR)Include;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_WARNINGS;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="X:\TGRKIT\LIB;"
+				AdditionalLibraryDirectories="X:\TGRKIT\LIB;$(OPENAL_DIR)lib;"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="X:\TGRKIT\INCLUDE;"
+				AdditionalIncludeDirectories="X:\TGRKIT\INCLUDE;$(OPENAL_DIR)Include;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_WINDOWS"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="X:\TGRKIT\LIB;"
+				AdditionalLibraryDirectories="X:\TGRKIT\LIB;$(OPENAL_DIR)lib;"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -241,17 +241,53 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ANIM\RND\RNDLIGHT.C"
+						>
+					</File>
+					<File
 						RelativePath=".\ANIM\RND\RNDPRIM.C"
 						>
 					</File>
 					<File
-						RelativePath=".\ANIM\RND\RNDSHD.C"
+						RelativePath=".\ANIM\RND\RNDPRIMS.C"
 						>
 					</File>
 					<File
 						RelativePath=".\ANIM\RND\wglext.h"
 						>
 					</File>
+					<Filter
+						Name="Resources"
+						>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDATE.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDIMG.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDMTL.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDRES.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDRES.H"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDSHD.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDTEX.C"
+							>
+						</File>
+					</Filter>
 				</Filter>
 			</Filter>
 			<Filter
@@ -266,11 +302,7 @@
 				Name="Units"
 				>
 				<File
-					RelativePath=".\UNITS\U_BBALL.C"
-					>
-				</File>
-				<File
-					RelativePath=".\UNITS\U_COW.C"
+					RelativePath=".\UNITS\U_CHICK.C"
 					>
 				</File>
 				<File
@@ -278,11 +310,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\UNITS\U_HILLS.C"
+					RelativePath=".\UNITS\U_EGG.C"
 					>
 				</File>
 				<File
-					RelativePath=".\UNITS\U_TORUS.C"
+					RelativePath=".\UNITS\U_ENVI.C"
 					>
 				</File>
 			</Filter>

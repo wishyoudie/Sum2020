@@ -7,7 +7,7 @@
 
 #include <time.h>
 #include "RND.H"
-
+#include "res/rndres.h"
 /* Link libraries */
 #pragma comment(lib, "opengl32")
 
@@ -51,22 +51,32 @@ VOID VI6_RndInit( HWND hWnd )
   }
 
   /* Set default render parametres */
-  glClearColor(0.30, 0.50, 0.8, 1);
+  glClearColor(0.30, 0.50, 0.8, 1); //day
+  ///glClearColor(0.965, 0.278, 0.278, 1); //sunset
+  ///glClearColor(0, 0, 0, 1); //night
   glEnable(GL_DEPTH_TEST);
   
   glEnable(GL_PRIMITIVE_RESTART);
   glPrimitiveRestartIndex(-1);
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   VI6_RndFrameW = 47;
   VI6_RndFrameH = 47;
 
   VI6_RndProjSize = VI6_RndProjDist = 0.1;
-  VI6_RndProjFarClip = 300;
+  VI6_RndProjFarClip = 300000;
 
   VI6_RndProjSet();
-  VI6_RndCamSet(VecSet(3, 3, 3), VecSet(0, 0, 0), VecSet(0, 1, 0));
+  //VI6_RndCamSet(VecSet(3, 3, 3), VecSet(0, 0, 0), VecSet(0, 1, 0));
 
-  
+  /* Set first stage */
+  VI6_GameStage = 0;
+  /* Initialize resources */
+  VI6_RndResInit();
+  /* Initialize shadows */
+  VI6_RndLightInit();
 } /* End of 'VI6_RndInit' function */
 
 /* Render close function
@@ -75,7 +85,8 @@ VOID VI6_RndInit( HWND hWnd )
  */
 VOID VI6_RndClose( VOID )
 {
-  VI6_RndShdDelete(VI6_RndProgId);
+  VI6_RndLightClose();
+  VI6_RndResClose();
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(VI6_hRndGLRC);
   ReleaseDC(VI6_hRndWnd, VI6_hRndDC);
@@ -106,7 +117,6 @@ VOID VI6_RndResize( INT W, INT H )
  */
 VOID VI6_RndCopyFrame( VOID )
 {
-  ///SwapBuffers(VI6_hRndDC);
   wglSwapLayerBuffers(VI6_hRndDC, WGL_SWAP_MAIN_PLANE);
 } /* End of 'VI6_RndCopyFrame' function */
 
@@ -116,18 +126,23 @@ VOID VI6_RndCopyFrame( VOID )
  */
 VOID VI6_RndStart( VOID )
 {
-  INT t = clock();
-  static INT old_time;
+#ifndef NDEBUG
+  INT t;
+  static INT reload_time;
+
+  if ((t = clock()) - reload_time > 2 * CLOCKS_PER_SEC)
+  {
+    VI6_RndShdUpdate();
+    reload_time = t;
+  }
+#endif /* NDEBUG */
+
+  /* Redraw shadows */
+  VI6_RndLightShadow();
+
   /* Clear background */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  if (t - old_time > CLOCKS_PER_SEC)
-  {
-    VI6_RndShdDelete(VI6_RndProgId);
-    VI6_RndProgId = VI6_RndShdLoad("DEFAULT");
-    old_time = t;
-  }
-  
-  /* Set draw parameteres */
+
 } /* End of 'VI6_RndStart' function */
 
 /* End render function
@@ -172,6 +187,12 @@ VOID VI6_RndCamSet( VEC Loc, VEC At, VEC Up )
 {
   VI6_RndMatrView = MatrView(Loc, At, Up);
   VI6_RndMatrVP = MatrMulMatr(VI6_RndMatrView, VI6_RndMatrProj);
+
+  VI6_RndCamLoc = Loc;
+  VI6_RndCamAt = At;
+  VI6_RndCamRight = VecSet(VI6_RndMatrView.A[0][0], VI6_RndMatrView.A[1][0], VI6_RndMatrView.A[2][0]);
+  VI6_RndCamUp = VecSet(VI6_RndMatrView.A[0][1], VI6_RndMatrView.A[1][1], VI6_RndMatrView.A[2][1]);
+  VI6_RndCamDir = VecSet(-VI6_RndMatrView.A[0][2], -VI6_RndMatrView.A[1][2], -VI6_RndMatrView.A[2][2]);
 } /* End of 'VI6_RndCamSet' function */
 
 /* END OF 'RNDBASE.C' FILE */

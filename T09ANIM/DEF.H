@@ -28,8 +28,6 @@
 
 #include "MTH/MTH.H"
 
-#define VI6_STR_MAX 1000
-
 /* 64 bit integer data type */
 typedef long long INT64;
 typedef unsigned long long UINT64;
@@ -38,9 +36,9 @@ typedef unsigned long long UINT64;
 typedef struct tagvi6VERTEX
 {
   VEC P;  /* Vertex position */
-  VEC2 T;
-  VEC N;
-  VEC4 C;
+  VEC2 T; /* Vertex texture */
+  VEC N;  /* Vertex normal */
+  VEC4 C; /* Vertex color */
 } vi6VERTEX;
 /* Primitive type structure */
 typedef enum tagvi6PRIM_TYPE
@@ -60,6 +58,9 @@ typedef struct tagvi6PRIM
      VBuf,             /* Vertex buffer Id */
      IBuf;             /* Index buffer Id (if 0 - use only vertex buffer) */
   MATR Trans;          /* Additional transformation matrix */
+  INT MtlNo;
+  VEC MinBB, MaxBB;    /* Minimum and maximum bound box values */
+  INT InstanceCnt;     /* Counter for instancing, 0 - not use */
 } vi6PRIM;
 
 #endif /* __DEF_H_ */
