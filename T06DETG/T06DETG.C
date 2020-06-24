@@ -57,7 +57,7 @@ VOID main( VOID )
   INT i, j, k, x, y, max_col, max_row;
   DBL coef;
   DBL Det = 1;
-  if (LoadMatrix("m4.TXT"))
+  if (LoadMatrix("m.TXT"))
   {
     for (i = 0; i < N; i++)
     {
